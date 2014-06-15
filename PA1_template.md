@@ -31,36 +31,7 @@ str(activity)
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
-The variables are steps, date and interval. Note that date variable is a factor. And there are 61 levels. Therefore the total number of days are 61.
-
-### What is mean total number of steps taken per day?
-
-To get the average number of steps per day we sum the total number of steps and divide that number by the number of levels in the date variable.
-
-
-```r
-totalSteps <- sum(activity$steps, na.rm=TRUE)  # Total number of steps
-avgSteps <- totalSteps/nlevels(activity$date)  # Divide the total by the number of days
-print(avgSteps)
-```
-
-```
-## [1] 9354
-```
-The mean total number of steps taken per day is 9354.2295.
-
-### What is the average daily activity pattern?
-
-
-
-### Imputing missing values
-
-
-
-### Are there differences in activity patterns between weekdays and weekends?
-
-
-Convert the date variable into a proper R date variable
+The variables are steps, date and interval. Note that date variable is a factor. Convert the date variable from a factor into a proper R date variable. 
 
 
 ```r
@@ -71,3 +42,51 @@ class(activity$date)                  # To ensure that the date variable is the 
 ```
 ## [1] "Date"
 ```
+
+### What is mean total number of steps taken per day?
+
+Sum the values by date using the `tapply()` function. We convert the resulting array into a data frame and use the ggplot2 package to get the histogram of the total no of steps.
+
+
+```r
+totalSteps <- tapply(activity$steps, activity$date, sum)     # Returns an array of the sums by date
+totalStepsDf  <- as.data.frame(totalSteps)                   # Convert array to a data frame
+totalStepsDf$date <- rownames(totalStepsDf)                  # Convert the rownames into a column
+rownames(totalStepsDf) <- NULL                               # Remove the rownames
+library(ggplot2)                                             # Using the ggplot2 package
+hist <- qplot(totalSteps, data = totalStepsDf)               # Set the plot
+hist + geom_histogram(binwidth=2000) +                       # Set the width of the bins
+  labs(y = "Count") +                                        # Set label for y axis
+  labs(x = "Total No of Steps") +                            # Set label for x axis
+  labs(title = "Total No of Steps per day")                  # Set the title of the plot
+```
+
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
+```r
+## Calculate the mean and median
+meanSteps  <- mean(totalStepsDf$totalSteps, na.rm=T)         # Mean no of steps
+medianSteps <- median(totalStepsDf$totalSteps, na.rm = T)    # Median no of steps
+```
+
+The mean no of total steps is 1.0766 &times; 10<sup>4</sup> and the median no of steps is 10765.
+
+
+
+### What is the average daily activity pattern?
+
+
+
+
+### Imputing missing values
+
+
+
+### Are there differences in activity patterns between weekdays and weekends?
+
+
+

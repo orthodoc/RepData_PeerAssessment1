@@ -22,20 +22,38 @@ To see what kind of variables are listed in the activity data frame
 str(activity)
 ```
 
-The variables are steps, date and interval. Note that date variable is a factor. And there are 61 levels. Therefore the total number of days are 61.
+The variables are steps, date and interval. Note that date variable is a factor. Convert the date variable from a factor into a proper R date variable. 
+
+```{r, echo=TRUE}
+activity[,2] <- as.Date(activity[,2]) # The second column is the date variable
+class(activity$date)                  # To ensure that the date variable is the date format
+```
 
 ### What is mean total number of steps taken per day?
 
-To get the average number of steps per day we sum the total number of steps and divide that number by the number of levels in the date variable.
+Sum the values by date using the `tapply()` function. We convert the resulting array into a data frame and use the ggplot2 package to get the histogram of the total no of steps.
 
-```{r, echo=TRUE}
-totalSteps <- sum(activity$steps, na.rm=TRUE)  # Total number of steps
-avgSteps <- totalSteps/nlevels(activity$date)  # Divide the total by the number of days
-print(avgSteps)
+```{r, echo=TRUE, fig.width=6, fig.height=6}
+totalSteps <- tapply(activity$steps, activity$date, sum)     # Returns an array of the sums by date
+totalStepsDf  <- as.data.frame(totalSteps)                   # Convert array to a data frame
+totalStepsDf$date <- rownames(totalStepsDf)                  # Convert the rownames into a column
+rownames(totalStepsDf) <- NULL                               # Remove the rownames
+library(ggplot2)                                             # Using the ggplot2 package
+hist <- qplot(totalSteps, data = totalStepsDf)               # Set the plot
+hist + geom_histogram(binwidth=2000) +                       # Set the width of the bins
+  labs(y = "Count") +                                        # Set label for y axis
+  labs(x = "Total No of Steps") +                            # Set label for x axis
+  labs(title = "Total No of Steps per day")                  # Set the title of the plot
+
+## Calculate the mean and median
+meanSteps  <- mean(totalStepsDf$totalSteps, na.rm=T)         # Mean no of steps
+medianSteps <- median(totalStepsDf$totalSteps, na.rm = T)    # Median no of steps
 ```
-The mean total number of steps taken per day is `r avgSteps`.
+
+The mean no of total steps is `r meanSteps` and the median no of steps is `r medianSteps`.
 
 ### What is the average daily activity pattern?
+
 
 
 
@@ -46,9 +64,4 @@ The mean total number of steps taken per day is `r avgSteps`.
 ### Are there differences in activity patterns between weekdays and weekends?
 
 
-Convert the date variable into a proper R date variable
 
-```{r, echo=TRUE}
-activity[,2] <- as.Date(activity[,2]) # The second column is the date variable
-class(activity$date)                  # To ensure that the date variable is the date format
-```
