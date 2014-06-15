@@ -163,11 +163,50 @@ Total no of missing values is 2304.
 
 For the new dataset with the imputed NA values the mean total no of steps is 1.0766 &times; 10<sup>4</sup> and the median total no of steps is 1.0766 &times; 10<sup>4</sup>.
 
-There is no differnce in the means, however the median is higher for the new dataset. Imputing the NAs in the dataset did not have a resonable impact on the mean and median values. Among the estimates for the two datasets, the range and the interquartile range is narrower for the new dataset.
-
+There is no differnce in the means, however the median is higher for the new dataset. Imputing the NAs in the dataset did not have a resonable impact on the mean and median values. From the boxplots it is clear that the range and the interquartile range is narrower for the new dataset.
 
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
+Use the `weekdays()` function to convert the date into a factor. We are using the newActivity dataset (has no NA values)
 
+
+```r
+day <- weekdays(newActivity$date, abbreviate=T)
+
+## Create a new column day and two levels, weekends and weekdays
+weekends  <- c("Sat", "Sun")
+weekdays <- c("Mon","Tue","Wed","Thu","Fri")
+newActivity$day[day %in% weekends] <- "weekend"
+newActivity$day[day %in% weekdays] <- "weekday"
+newActivity$day <- factor(newActivity$day)
+
+# Split data by the day column
+splitByDay <- split(newActivity, newActivity$day)
+weekdayActivity  <- splitByDay$weekday
+weekendActivity <- splitByDay$weekend
+
+meanByIntervalWeekdays <- tapply(weekdayActivity$steps,
+                                    weekdayActivity$interval,
+                                    mean
+                                )
+meanByIntervalWeekends <- tapply(weekendActivity$steps,
+                                    weekendActivity$interval,
+                                    mean
+                                )
+
+## Plot the panel graphs
+par(mfrow=c(2,1))
+plot(meanByIntervalWeekdays, type="l",
+         main="Weekday",
+         ylab="No of Steps"
+     )
+plot(meanByIntervalWeekends, type="l",
+         main="Weekend",
+         xlab="Interval",
+         ylab="No of Steps"
+     )
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
 
